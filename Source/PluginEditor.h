@@ -28,7 +28,7 @@ public:
     void guiRedraw() final;
     
 private:
-    void updatePatch();
+    void updateSize();
     void updateObjects();
     
     CamomileAudioProcessor&         m_processor;

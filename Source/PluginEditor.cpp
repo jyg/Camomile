@@ -25,14 +25,14 @@ AudioProcessorEditor (&p), CamomileEditorInteractionManager(p), m_processor (p),
                         "background image " + CamomileEnvironment::getImageName() +
                         " is invalid or doesn't exist.");
     }
-    updatePatch();
+    updateSize();
     addAndMakeVisible(m_button);
     startTimer(25);
 }
 
 CamomileEditor::~CamomileEditor() {}
 
-void CamomileEditor::updatePatch()
+void CamomileEditor::updateSize()
 {
     auto const bounds = m_processor.getPatch().getBounds();
     int const width  = bounds[2] > 0 ? std::max(bounds[2], 100) : 400;
@@ -48,6 +48,8 @@ void CamomileEditor::updatePatch()
                 addAndMakeVisible(m_image, 0);
             }
         }
+        
+        
     }
     updateObjects();
 }
@@ -127,7 +129,7 @@ void CamomileEditor::modifierKeysChanged(const ModifierKeys& modifiers)
 
 void CamomileEditor::guiResize()
 {
-    updatePatch();
+    updateSize();
 }
 
 void CamomileEditor::guiRedraw()

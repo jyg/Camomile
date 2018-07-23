@@ -74,6 +74,13 @@ value(g.getValue()), min(g.getMinimum()), max(g.getMaximum())
 
 PluginEditorObject::~PluginEditorObject() {}
 
+void PluginEditorObject::redraw()
+{
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+    repaint();
+}
+
 float PluginEditorObject::getValueOriginal() const noexcept
 {
     return value;
@@ -459,21 +466,14 @@ void GuiComment::paint(Graphics& g)
 
 GuiTextEditor::GuiTextEditor(CamomileEditorMouseManager& p, pd::Gui& g) : PluginEditorObject(p, g)
 {
-    const int border = 1;
-    const float fs = static_cast<float>(gui.getFontHeight());
-    Font const tf = CamoLookAndFeel::getDefaultFont().withPointHeight(fs);
-    
     label = new Label();
-    label->setBounds(2, 0, getWidth() - 2, getHeight() - 1);
-    label->setFont(tf);
     label->setMinimumHorizontalScale(1.f);
     label->setJustificationType(Justification::centredLeft);
-    label->setBorderSize(BorderSize<int>(border+2, border, border, border));
     label->setText(String(getValueOriginal()), NotificationType::dontSendNotification);
     label->setEditable(false, false);
     label->setInterceptsMouseClicks(false, false);
     label->addListener(this);
-    label->setColour(Label::textColourId, Colour(static_cast<uint32>(gui.getForegroundColor())));
+    this->redraw();
     setInterceptsMouseClicks(true, false);
     addAndMakeVisible(label);
 }
@@ -513,13 +513,26 @@ void GuiTextEditor::update()
     }
 }
 
+void GuiTextEditor::redraw()
+{
+    PluginEditorObject::redraw();
+    const int border = 1;
+    const float fs = static_cast<float>(gui.getFontHeight());
+    Font const tf = CamoLookAndFeel::getDefaultFont().withPointHeight(fs);
+    label->setBounds(2, 0, getWidth() - 2, getHeight() - 1);
+    label->setFont(tf);
+    label->setBorderSize(BorderSize<int>(border+2, border, border, border));
+    label->setColour(Label::textColourId, Colour(static_cast<uint32>(gui.getForegroundColor())));
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////     NUMBER              /////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-GuiNumber::GuiNumber(CamomileEditorMouseManager& p, pd::Gui& g) : GuiTextEditor(p, g)
+void GuiNumber::redraw()
 {
+    GuiTextEditor::redraw();
     const float w = static_cast<float>(getWidth());
     const float h = static_cast<float>(getHeight());
     label->setBounds(static_cast<int>(h * 0.5f), static_cast<int>(0.5f),
@@ -599,11 +612,6 @@ void GuiNumber::mouseDoubleClick(const MouseEvent&)
 //////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////     GATOM NUMBER        /////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-
-GuiAtomNumber::GuiAtomNumber(CamomileEditorMouseManager& p, pd::Gui& g) : GuiTextEditor(p, g)
-{
-    ;
-}
 
 void GuiAtomNumber::paint(Graphics& g)
 {
