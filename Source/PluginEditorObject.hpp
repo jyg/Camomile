@@ -63,6 +63,9 @@ public:
     
     //! @brief Get the label of the object.
     Label* getLabel();
+    
+    //! @brief Get the Pd GUI of the object.
+    pd::Gui getGUI();
 protected:
     float getValueOriginal() const noexcept;
     void setValueOriginal(float v);

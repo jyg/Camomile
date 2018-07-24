@@ -81,6 +81,11 @@ void PluginEditorObject::redraw()
     repaint();
 }
 
+pd::Gui PluginEditorObject::getGUI()
+{
+    return gui;
+}
+
 float PluginEditorObject::getValueOriginal() const noexcept
 {
     return value;
