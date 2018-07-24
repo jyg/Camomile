@@ -8,6 +8,7 @@
 #include "PluginEnvironment.h"
 #include "PluginLookAndFeel.hpp"
 #include "Pd/PdPatch.hpp"
+#include <algorithm>
 
 CamomileEditor::CamomileEditor(CamomileAudioProcessor& p) :
 AudioProcessorEditor (&p), CamomileEditorInteractionManager(p), m_processor (p), m_button(p)
@@ -48,33 +49,63 @@ void CamomileEditor::updateSize()
                 addAndMakeVisible(m_image, 0);
             }
         }
-        
-        
     }
     updateObjects();
 }
 
 void CamomileEditor::updateObjects()
 {
-    m_labels.clear();
-    m_objects.clear();
-    auto const pbounds = m_processor.getPatch().getBounds();
+    cleanObjects();
+    addObjects();
+    addObjectsLabels();
+}
+
+void CamomileEditor::addObjects()
+{
+    auto const guis = m_processor.getPatch().getGuis();
+    const auto pbounds = m_processor.getPatch().getBounds();
     const auto bounds = getLocalBounds().expanded(2).translated(1, 1);
-    for(auto& gui : m_processor.getPatch().getGuis())
+    for(size_t i = 0; i < guis.size(); ++i)
     {
-        PluginEditorObject* obj = PluginEditorObject::createTyped(*this, gui);
-        if(obj)
+        pd::Gui gui(guis[i]);
+        if(std::find_if(m_objects.begin(), m_objects.end(), [&gui](object_uptr const& object)
+                        { return object->getGUI() == gui; }) == m_objects.end())
         {
-            obj->setTopLeftPosition(obj->getX() - pbounds[0], obj->getY() - pbounds[1]);
-            if(bounds.contains(obj->getBounds()))
+            object_uptr object(PluginEditorObject::createTyped(*this, gui));
+            if(object)
             {
-                Component* label = obj->getLabel();
-                addAndMakeVisible(m_objects.add(obj));
-                if(label)
+                object->setTopLeftPosition(object->getX() - pbounds[0], object->getY() - pbounds[1]);
+                if(bounds.contains(object->getBounds()))
                 {
-                    addAndMakeVisible(m_labels.add(label));
+                    addAndMakeVisible(object.get(), (int)i);
+                    m_objects.push_back(std::move(object));
                 }
             }
+        }
+    }
+}
+
+void CamomileEditor::cleanObjects()
+{
+    auto const guis = m_processor.getPatch().getGuis();
+    const auto bounds = getLocalBounds().expanded(2).translated(1, 1);
+    std::remove_if(m_objects.begin(), m_objects.end(),
+                   [&guis, &bounds](object_uptr const& object)
+                   {
+                       return std::find(guis.begin(), guis.end(), object->getGUI()) == guis.end() || !bounds.contains(object->getBounds());
+                   });
+}
+
+void CamomileEditor::addObjectsLabels()
+{
+    m_labels.clear();
+    for(auto const& object : m_objects)
+    {
+        label_uptr label(object->getLabel());
+        if(label)
+        {
+            addAndMakeVisible(label.get());
+            m_labels.push_back(std::move(label));
         }
     }
 }
@@ -82,7 +113,7 @@ void CamomileEditor::updateObjects()
 void CamomileEditor::timerCallback()
 {
     CamomileEditorMessageManager::processMessages();
-    for(auto object : m_objects)
+    for(auto const& object : m_objects)
     {
         object->update();
     }
