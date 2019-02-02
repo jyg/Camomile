@@ -658,5 +658,6 @@ void CamomileAudioProcessor::setConsoleWindowBounds(Rectangle<int> const& rect)
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
+    CamomileEnvironment::initialize();
     return new CamomileAudioProcessor();
 }

@@ -104,19 +104,19 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="../Dependencies/Vst"
-               externalLibraries="pd-multi" customXcodeResourceFolders="" postbuildCommand=""
-               keepCustomXcodeSchemes="1" extraDefs="HAVE_UNISTD_H=1">
+               customXcodeResourceFolders="" postbuildCommand="" keepCustomXcodeSchemes="1"
+               extraDefs="HAVE_UNISTD_H=1">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="0" isDebug="1" optimisation="1"
                        linkTimeOptimisation="0" targetName="CamomileFx" osxCompatibility="10.9 SDK"
-                       osxArchitecture="64BitUniversal" libraryPath="../../../Dependencies/LibPdBuild"
-                       headerPath="" binaryPath="../Plugins" auBinaryLocation="$(PROJECT_DIR)/../plugins/Components/"
-                       vst3BinaryLocation="$(PROJECT_DIR)/../plugins/VST3/" vstBinaryLocation="$(PROJECT_DIR)/../plugins/VST/"/>
+                       osxArchitecture="64BitUniversal" headerPath="" binaryPath="../Plugins"
+                       auBinaryLocation="$(PROJECT_DIR)/../plugins/Components/" vst3BinaryLocation="$(PROJECT_DIR)/../plugins/VST3/"
+                       vstBinaryLocation="$(PROJECT_DIR)/../plugins/VST/"/>
         <CONFIGURATION name="Release" enablePluginBinaryCopyStep="0" isDebug="0" optimisation="3"
                        linkTimeOptimisation="1" targetName="CamomileFx" osxCompatibility="10.9 SDK"
-                       osxArchitecture="64BitUniversal" libraryPath="../../../Dependencies/LibPdBuild"
-                       headerPath="" binaryPath="../Plugins" auBinaryLocation="$(PROJECT_DIR)/../plugins/Components/"
-                       vst3BinaryLocation="$(PROJECT_DIR)/../plugins/VS3/" vstBinaryLocation="$(PROJECT_DIR)/../plugins/VST/"/>
+                       osxArchitecture="64BitUniversal" headerPath="" binaryPath="../Plugins"
+                       auBinaryLocation="$(PROJECT_DIR)/../plugins/Components/" vst3BinaryLocation="$(PROJECT_DIR)/../plugins/VS3/"
+                       vstBinaryLocation="$(PROJECT_DIR)/../plugins/VST/"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../Juce/modules"/>
