@@ -14,7 +14,7 @@
   <p align="center">
     <a href="https://github.com/pierreguillot/Camomile/releases/latest"><img src="https://img.shields.io/github/downloads/pierreguillot/Camomile/total.svg?colorB=007ec6" alt="Downloads"></a>
     <a href="https://github.com/pierreguillot/Camomile/releases/latest"><img src="https://img.shields.io/github/release/pierreguillot/Camomile.svg" alt="Release"></a>
-    <a href="https://github.com/pierreguillot/Camomile/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-GPL--v3-blue.svg" alt="License"></a>
+    <a href="https://github.com/pierreguillot/Camomile/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-BSD-blue.svg" alt="License"></a>
   </p>
   <p align="center">
     <a href="https://github.com/pierreguillot/Camomile/wiki"><img src="https://img.shields.io/badge/@-documentation-blue.svg" alt="Documentation"></a>
