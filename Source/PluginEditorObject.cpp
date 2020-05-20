@@ -67,8 +67,10 @@ PluginEditorObject* PluginEditorObject::createTyped(CamomileEditorMouseManager& 
 PluginEditorObject::PluginEditorObject(CamomileEditorMouseManager& p, pd::Gui& g) : gui(g), patch(p), edited(false),
 value(g.getValue()), min(g.getMinimum()), max(g.getMaximum())
 {
+    // those two lines are now moved to the widget paint() function
     std::array<int, 4> const bounds(gui.getBounds());
     setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     setOpaque(false);
 }
 
@@ -119,6 +121,19 @@ void PluginEditorObject::update()
         {
             value = v;
             repaint();
+	    if(objectLabel)
+	    {
+                pd::Label const lbl = gui.getLabel();
+                const String text = String(lbl.getText());
+                const Font ft = CamoLookAndFeel::getFont(lbl.getFontName()).withPointHeight(static_cast<float>(lbl.getFontHeight()));
+                const int width = ft.getStringWidth(text) + 1;
+                const int height = ft.getHeight();
+                const std::array<int, 2> position = lbl.getPosition();
+                objectLabel->setBounds(position[0], position[1] - height / 2, width, height);
+                objectLabel->setText(text, NotificationType::dontSendNotification);
+                objectLabel->setColour(Label::textColourId, Colour(static_cast<uint32>(lbl.getColor())));
+		objectLabel->repaint();
+	    }
         }
     }
 }
@@ -143,11 +158,32 @@ Label* PluginEditorObject::getLabel()
         label->setEditable(false, false);
         label->setInterceptsMouseClicks(false, false);
         label->setColour(Label::textColourId, Colour(static_cast<uint32>(lbl.getColor())));
+
+        /// keep trace of associated label
+        objectLabel=label;
+
         return label;
     }
+    objectLabel = nullptr;
     return nullptr;
 }
 
+void PluginEditorObject::repaintLabel()
+{
+    if(objectLabel)
+    {
+        pd::Label const lbl = gui.getLabel();
+        const String text = String(lbl.getText());
+        const Font ft = CamoLookAndFeel::getFont(lbl.getFontName()).withPointHeight(static_cast<float>(lbl.getFontHeight()));
+        const int width = ft.getStringWidth(text) + 1;
+        const int height = ft.getHeight();
+        const std::array<int, 2> position = lbl.getPosition();
+        objectLabel->setBounds(position[0], position[1] - height / 2, width, height);
+        objectLabel->setText(text, NotificationType::dontSendNotification);
+        objectLabel->setColour(Label::textColourId, Colour(static_cast<uint32>(lbl.getColor())));
+        objectLabel->repaint();
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////     BANG        /////////////////////////////////////
@@ -155,6 +191,9 @@ Label* PluginEditorObject::getLabel()
 
 void GuiBang::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     const float w = static_cast<float>(getWidth() - border * 2);
     g.fillAll(Colour(static_cast<uint32>(gui.getBackgroundColor())));
@@ -173,6 +212,7 @@ void GuiBang::mouseDown(const MouseEvent& e)
     startEdition();
     setValueOriginal(1);
     repaint();
+    repaintLabel();
     stopEdition();
 }
 
@@ -190,6 +230,9 @@ void GuiBang::mouseUp(const MouseEvent& e)
 
 void GuiToggle::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     g.fillAll(Colour(static_cast<uint32>(gui.getBackgroundColor())));
     if(getValueOriginal() > std::numeric_limits<float>::epsilon())
@@ -208,6 +251,7 @@ void GuiToggle::mouseDown(const MouseEvent& e)
     startEdition();
     setValueOriginal(1.f - getValueOriginal());
     repaint();
+    repaintLabel();
     stopEdition();
 }
 
@@ -217,6 +261,9 @@ void GuiToggle::mouseDown(const MouseEvent& e)
 
 void GuiSliderHorizontal::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     const float crsor  = 3.f;
     const float w = static_cast<float>(getWidth()) - border * 2.f;
@@ -277,6 +324,7 @@ void GuiSliderHorizontal::mouseDrag(const MouseEvent& e)
         }
     }
     repaint();
+    repaintLabel();
 }
 
 void GuiSliderHorizontal::mouseUp(const MouseEvent& e)
@@ -290,6 +338,9 @@ void GuiSliderHorizontal::mouseUp(const MouseEvent& e)
     
 void GuiSliderVertical::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     const float crsor = 3.f;
     const float w = static_cast<float>(getWidth() - border * 2);
@@ -349,7 +400,9 @@ void GuiSliderVertical::mouseDrag(const MouseEvent& e)
             setValueScaled(m_temp + val);
         }
     }
+    patch.sendMouseXY(e.x,e.y);
     repaint();
+    repaintLabel();
 }
 
 void GuiSliderVertical::mouseUp(const MouseEvent& e)
@@ -363,6 +416,9 @@ void GuiSliderVertical::mouseUp(const MouseEvent& e)
 
 void GuiRadioHorizontal::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     const float extra  = 2.f;
     const float h  = static_cast<float>(getHeight());
@@ -385,6 +441,7 @@ void GuiRadioHorizontal::mouseDown(const MouseEvent& e)
     startEdition();
     setValueOriginal(std::floor(static_cast<float>(e.x * (max + 1)) / static_cast<float>(getWidth())));
     repaint();
+    repaintLabel();
     stopEdition();
 }
 
@@ -394,6 +451,9 @@ void GuiRadioHorizontal::mouseDown(const MouseEvent& e)
 
 void GuiRadioVertical::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     const float extra  = 2.f;
     const float h  = static_cast<float>(getHeight()) / static_cast<float>(max + 1);
@@ -416,6 +476,7 @@ void GuiRadioVertical::mouseDown(const MouseEvent& e)
     startEdition();
     setValueOriginal(std::floor(static_cast<float>(e.y * (max + 1)) / static_cast<float>(getHeight())));
     repaint();
+    repaintLabel();
     stopEdition();
 }
 
@@ -426,12 +487,16 @@ void GuiRadioVertical::mouseDown(const MouseEvent& e)
 GuiPanel::GuiPanel(CamomileEditorMouseManager& p, pd::Gui& g) : PluginEditorObject(p, g)
 {
     setInterceptsMouseClicks(false, false);
-    edited = true;
+    edited = false;
 }
 
 void GuiPanel::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     g.fillAll(Colour(static_cast<uint32>(gui.getBackgroundColor())));
+    repaintLabel();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -446,6 +511,9 @@ GuiComment::GuiComment(CamomileEditorMouseManager& p, pd::Gui& g) : PluginEditor
 
 void GuiComment::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const auto fheight = gui.getFontHeight();
     auto const ft = CamoLookAndFeel::getFont(gui.getFontName()).withPointHeight(fheight);
     g.setFont(ft);
@@ -527,6 +595,9 @@ GuiNumber::GuiNumber(CamomileEditorMouseManager& p, pd::Gui& g) : GuiTextEditor(
 
 void GuiNumber::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     const float h = static_cast<float>(getHeight());
     const float w = static_cast<float>(getWidth());
@@ -544,6 +615,7 @@ void GuiNumber::paint(Graphics& g)
     g.drawLine(0.f, h, h * 0.5f, h * 0.5f, border);
     g.setColour(Colours::black);
     g.strokePath(p, PathStrokeType(border));
+    repaintLabel();
 }
 
 void GuiNumber::mouseDown(const MouseEvent& event)
@@ -606,6 +678,9 @@ GuiAtomNumber::GuiAtomNumber(CamomileEditorMouseManager& p, pd::Gui& g) : GuiTex
 
 void GuiAtomNumber::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     const float h = static_cast<float>(getHeight());
     const float w = static_cast<float>(getWidth());
@@ -695,6 +770,9 @@ GuiAtomSymbol::GuiAtomSymbol(CamomileEditorMouseManager& p, pd::Gui& g) : GuiTex
 
 void GuiAtomSymbol::paint(Graphics& g)
 {
+    std::array<int, 4> const bounds(gui.getBounds());
+    setBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
+
     const float border = 1.f;
     const float h = static_cast<float>(getHeight());
     const float w = static_cast<float>(getWidth());
